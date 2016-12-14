@@ -12,11 +12,7 @@ module.exports = function compare(oldData, newData) {
 
     if (compared.length === 0) {
       result.deleted.push(o);
-    } else if (compared[0].ext !== o.ext
-            || compared[0].cell !== o.cell
-            || compared[0].alt !== o.alt
-            || compared[0].title !== o.title
-            || compared[0].email !== o.email) {
+    } else if (JSON.stringify(compared[0]) !== JSON.stringify(o)) {
       result.modified.push(compared[0]);
     }
   });
