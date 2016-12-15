@@ -3,7 +3,7 @@ module.exports = compare = (oldData, newData) => {
 
   oldData.map(o => (c => (
     c.length === 0 ? result.deleted.push(o) : 
-    JSON.stringify(c[0])!== JSON.stringify(o.ext) ? result.modified.push(c[0]) : '')
+    JSON.stringify(c[0])!== JSON.stringify(o) ? result.modified.push(c[0]) : '')
     )(newData.filter(n => (o.firstName === n.firstName && o.lastName === n.lastName)))
   );
 
