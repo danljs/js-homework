@@ -5,26 +5,26 @@ module.exports = function compare(oldData, newData) {
     modified: [],
   };
 
-  oldData.map(function (o) {
-    const compared = newData.filter(function (n) {
-      return o.firstName === n.firstName && o.lastName === n.lastName;
-    });
+  const oldDataObj = {};
 
-    if (compared.length === 0) {
-      result.deleted.push(o);
-    } else if (JSON.stringify(compared[0]) !== JSON.stringify(o)) {
-      result.modified.push(compared[0]);
-    }
-  });
+  oldData.map(o => oldDataObj[o.email] = o);
 
-  newData.map(function (n) {
-    const compared = oldData.filter(function (o) {
-      return n.firstName === o.firstName && n.lastName === o.lastName;
-    });
-
-    if (compared.length === 0) {
+  newData.map(n => {
+    const o = oldDataObj[n.email];
+    if (!o) {
       result.added.push(n);
+    } else {
+      if (o.firstName !== n.firstName ||
+        o.lastName !== n.lastName ||
+        o.ext !== n.ext ||
+        o.cell !== n.cell ||
+        o.alt !== n.alt ||
+        o.title !== n.title) {
+        result.modified.push({ before: o, after: n });
+      }
+      delete oldDataObj[n.email];
     }
   });
+  result.deleted.push(oldDataObj);
   return result;
 }
