@@ -32,7 +32,7 @@ function generateData1(num){
   return ret;
 }
 
-let number = 100000;
+let number = 1000000;
 let oldData = generateData1(number);
 let newData = generateData(number);
 newData.splice(0,1);
