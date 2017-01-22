@@ -57,6 +57,9 @@ newData.splice(2888,1,{
 });
 
 console.time('a');
-let result = compare(oldData, newData);
+const key = 'email';
+const keys = ['firstName', 'lastName', 'ext', 'cell', 'alt', 'title'];
+
+let result = compare(oldData, newData, key, keys);
 console.timeEnd('a');
 console.log(result);

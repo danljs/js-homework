@@ -7,18 +7,18 @@ module.exports = url => new Promise(resolve => http.get(url, res => {
 
   res.on('end', () => {
     const doc = jsdom(html);
+    //html = html.toLowerCase();
+    //const doc = jsdom(html.slice(html.indexOf('<table'), html.indexOf('</table>') + 8));
     const keys = doc.querySelectorAll('tr th');
     const values = doc.querySelectorAll('tr td');
-    let json = '[';
-    for (let i = 0; i < values.length; i * keys.length) {
-      json += '{';
-      for (let j = 0; j < keys.length; j++, i++) {
-        json += `"${keys[j].textContent}":"${values[i].textContent}",`;
+    const rows = [];
+    for (let i = 0; i < values.length / keys.length; i++) {
+      const row = {};
+      for (let j = 0; j < keys.length; j++) {
+        row[keys[j].textContent] = values[(i * keys.length) + j].textContent;
       }
-      json = `${json.slice(0, -1)}},`;
+      rows.push(row);
     }
-    json = `${json.slice(0, -1)}]`;
-
-    resolve(json);
+    resolve(rows);
   });
 }));

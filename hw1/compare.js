@@ -1,26 +1,26 @@
-module.exports = function compare(oldData, newData) {
+
+module.exports = function compare(oldData, newData, key, keys) {
   const result = { added: [], deleted: [], modified: [] };
   const oldDataObj = {};
 
   const isChanged = (o, n) => {
-    o.firstName !== n.firstName ||
-    o.lastName !== n.lastName ||
-    o.ext !== n.ext ||
-    o.cell !== n.cell ||
-    o.alt !== n.alt ||
-    o.title !== n.title
+    for(let i = 0; i < keys.length; i++){
+      if(o[keys[i]] !== n[keys[i]]) {
+        return true ;
+      }
+    }
+    return false ;
   };
 
-  oldData.map(o => oldDataObj[o.email] = o);
+  oldData.map(o => oldDataObj[o[key]] = o);
 
   newData.map(n => {
-    const o = oldDataObj[n.email];
+    const o = oldDataObj[n[key]];
     if (!o) {
       result.added.push(n);
     } else {
       isChanged(o, n) ? result.modified.push({ before: o, after: n }) : '';
-      delete oldDataObj[n.email];
-      // oldDataObj[n.email] = undefined;
+      delete oldDataObj[n[key]];
     }
   });
 
