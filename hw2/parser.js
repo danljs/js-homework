@@ -7,15 +7,13 @@ module.exports = url => new Promise(resolve => http.get(url, res => {
 
   res.on('end', () => {
     const doc = jsdom(html);
-    //html = html.toLowerCase();
-    //const doc = jsdom(html.slice(html.indexOf('<table'), html.indexOf('</table>') + 8));
     const keys = doc.querySelectorAll('tr th');
     const values = doc.querySelectorAll('tr td');
     const rows = [];
-    for (let i = 0; i < values.length / keys.length; i++) {
+    for (let i = 0; i < values.length; i += keys.length) {
       const row = {};
-      for (let j = 0; j < keys.length; j++) {
-        row[keys[j].textContent] = values[(i * keys.length) + j].textContent;
+      for (let j = 0; j < keys.length; j += 1) {
+        row[keys[j].textContent] = values[i + j].textContent;
       }
       rows.push(row);
     }
