@@ -12,9 +12,7 @@ const today = new Date().toISOString().slice(0, 10);
 module.exports = function (last) {
   function isChanged(o, n) {
     for (let i = 0; i < keys.length; i++) {
-      if (o[keys[i]] !== n[keys[i]]) {
-        return true;
-      }
+      if (o[keys[i]] !== n[keys[i]]) return true;
     }
     return false;
   }
@@ -74,9 +72,7 @@ module.exports = function (last) {
   function save(data) {
     return new Promise(resolve => {
       fs.writeFile(`${data_dir}/${today}.json`, JSON.stringify(data), err => {
-        if (err) {
-          return console.log(err);
-        }
+        if (err) return console.log(err);
         resolve(data);
       });
     });
@@ -84,17 +80,14 @@ module.exports = function (last) {
 
   function output(newData) {
     fs.readFile(`${data_dir}/${last}.json`, (err, oldData) => {
-      if (err) {
-        console.log(err);
-      } else {
-        const result = compare(JSON.parse(oldData, 'utf8'), newData);
-        console.log('---added---');
-        console.log(result.added);
-        console.log('---deleted---');
-        console.log(result.deleted);
-        console.log('---modified---');
-        console.log(result.modified);
-      }
+      if (err) return console.log(err);
+      const result = compare(JSON.parse(oldData, 'utf8'), newData);
+      console.log('---added---');
+      console.log(result.added);
+      console.log('---deleted---');
+      console.log(result.deleted);
+      console.log('---modified---');
+      console.log(result.modified);
     });
   }
 
