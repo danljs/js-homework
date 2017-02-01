@@ -9,7 +9,7 @@ const key = 'E-mail Address';
 const data_dir = path.join(__dirname, '/data');
 const today = new Date().toISOString().slice(0, 10);
 
-function diff() {
+module.exports = function diff(last) {
   return {
     init() {
       return new Promise(resolve => {
@@ -48,7 +48,7 @@ function diff() {
         });
       }));
     },
-    load(last) {
+    load() {
       return new Promise(resolve => {
         fs.readFile(`${data_dir}/${last}.json`, (err, oldData) => {
           if (err) return console.log(err);
@@ -78,19 +78,17 @@ function diff() {
       result.deleted.push(oldDataObj);
       return result;
     },
+    run() {
+      this.init()
+      .then(() => Promise.all([this.fetch(), this.load()]).then(datas => {
+        const result = this.compare(datas[1], datas[0]);
+        console.log('---added---');
+        console.log(result.added);
+        console.log('---deleted---');
+        console.log(result.deleted);
+        console.log('---modified---');
+        console.log(result.modified);
+      }));
+    },
   }
-}
-
-module.exports = last => {
-  const d = diff();
-  d.init()
-  .then(() => Promise.all([d.fetch(), d.load(last)]).then(datas => {
-    const result = d.compare(datas[1], datas[0]);
-    console.log('---added---');
-    console.log(result.added);
-    console.log('---deleted---');
-    console.log(result.deleted);
-    console.log('---modified---');
-    console.log(result.modified);
-  }));
 }
