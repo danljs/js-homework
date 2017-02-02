@@ -80,8 +80,8 @@ module.exports = function diff(last) {
     },
     run() {
       this.init()
-      .then(() => Promise.all([this.fetch(), this.load()]).then(datas => {
-        const result = this.compare(datas[1], datas[0]);
+      .then(() => Promise.all([this.fetch(), this.load()]).then(data => {
+        const result = this.compare(data[1], data[0]);
         console.log('---added---');
         console.log(result.added);
         console.log('---deleted---');
