@@ -79,16 +79,16 @@ module.exports = function diff(last) {
       return result;
     },
     run() {
-      this.init()
-      .then(() => Promise.all([this.fetch(), this.load()]).then(data => {
-        const result = this.compare(data[1], data[0]);
+      Promise.all([this.init(), this.fetch(), this.load()])
+      .then(data => {
+        const result = this.compare(data[2], data[1]);
         console.log('---added---');
         console.log(result.added);
         console.log('---deleted---');
         console.log(result.deleted);
         console.log('---modified---');
         console.log(result.modified);
-      }));
+      });
     },
   }
 }
