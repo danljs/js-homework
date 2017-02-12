@@ -2,6 +2,7 @@ const http = require('http');
 const jsdom = require('jsdom').jsdom;
 const fs = require('fs');
 const path = require('path');
+const URL = require('url');
 
 const url = 'http://web-aaronding.rhcloud.com/employee.html';
 const keys = ['First Name', 'Last Name', 'Extension', 'Cell Number', 'Alternative NumberEmergency Only', 'Title'];
@@ -24,10 +25,13 @@ module.exports = function diff(last) {
       });
     },
     fetch() {
-      return new Promise(resolve => http.get(url, res => {
+      const options = URL.parse(url);
+      options.headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.65 Safari/537.36'
+      };
+      return new Promise(resolve => http.get(options, res => {
         let html = '';
-        res
-        .on('data', chunk => html += chunk)
+        res.on('data', chunk => html += chunk)
         .on('end', () => {
           const doc = jsdom(html);
           const names = doc.querySelectorAll('tr th');
@@ -40,29 +44,37 @@ module.exports = function diff(last) {
             }
             rows.push(row);
           }
-
-          fs.writeFile(`${data_dir}/${today}.json`, JSON.stringify(rows), err => {
-            if (err) return console.log(err);
-          });
           resolve(rows);
         });
       }));
     },
+    save(cur) {
+      return new Promise(resolve => {
+        fs.writeFile(`${data_dir}/${today}.json`, JSON.stringify(cur), err => {
+          if (err) return console.log(err);
+        });
+        resolve();
+      });
+    },
     load() {
       return new Promise(resolve => {
-        fs.readFile(`${data_dir}/${last}.json`, (err, oldData) => {
-          if (err) return console.log(err);
-          resolve(JSON.parse(oldData, 'utf8'));
+        fs.readdir(data_dir, (err, items) => {
+          items.sort();
+          fs.readFile(`${data_dir}/${items.pop()}`, (err, oldData) => {
+            if (err) return console.log(err);
+            resolve(JSON.parse(oldData, 'utf8'));
+          });
         });
       });
     },
-    isChanged(o, n) {
-      for (let i = 0; i < keys.length; i++) {
-        if (o[keys[i]] !== n[keys[i]]) return true;
-      }
-      return false;
-    },
     compare(oldData, newData) {
+      function isChanged(o, n) {
+        for (let i = 0; i < keys.length; i += 1) {
+          if (o[keys[i]] !== n[keys[i]]) return true;
+        }
+        return false;
+      }
+
       const result = { added: [], deleted: [], modified: [] };
       const oldDataObj = {};
       oldData.map(o => oldDataObj[o[key]] = o);
@@ -71,7 +83,7 @@ module.exports = function diff(last) {
         if (!o) {
           result.added.push(n);
         } else {
-          if (this.isChanged(o, n)) result.modified.push({ before: o, after: n });
+          if (isChanged(o, n)) result.modified.push({ before: o, after: n });
           delete oldDataObj[n[key]];
         }
       });
@@ -81,13 +93,15 @@ module.exports = function diff(last) {
     run() {
       Promise.all([this.init(), this.fetch(), this.load()])
       .then(data => {
-        const result = this.compare(data[2], data[1]);
+        let [, cur, last] = data;
+        const result = this.compare(last, cur);
         console.log('---added---');
         console.log(result.added);
         console.log('---deleted---');
         console.log(result.deleted);
         console.log('---modified---');
         console.log(result.modified);
+        this.save(cur);
       });
     },
   }
