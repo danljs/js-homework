@@ -1,1 +1,1 @@
-require('./diff')('2017-01-25').run();
+require('./diff')().run();

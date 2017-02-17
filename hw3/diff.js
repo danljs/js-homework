@@ -3,6 +3,7 @@ const jsdom = require('jsdom').jsdom;
 const fs = require('fs');
 const path = require('path');
 const URL = require('url');
+const openurl = require('openurl')
 
 const url = 'http://web-aaronding.rhcloud.com/employee.html';
 const keys = ['First Name', 'Last Name', 'Extension', 'Cell Number', 'Alternative NumberEmergency Only', 'Title'];
@@ -10,7 +11,7 @@ const key = 'E-mail Address';
 const data_dir = path.join(__dirname, '/data');
 const today = new Date().toISOString().slice(0, 10);
 
-module.exports = function diff(last) {
+module.exports = function diff() {
   return {
     init() {
       return new Promise(resolve => {
@@ -52,22 +53,23 @@ module.exports = function diff(last) {
       return new Promise(resolve => {
         fs.writeFile(`${data_dir}/${today}.json`, JSON.stringify(cur), err => {
           if (err) return console.log(err);
+          // openurl.open(`${data_dir}/${today}.json`);
+          resolve();
         });
-        resolve();
       });
     },
     load() {
       return new Promise(resolve => {
         fs.readdir(data_dir, (err, items) => {
           items.sort();
-          fs.readFile(`${data_dir}/${items.pop()}`, (err, oldData) => {
+          fs.readFile(`${data_dir}/${items.pop()}`, (err, last) => {
             if (err) return console.log(err);
-            resolve(JSON.parse(oldData, 'utf8'));
+            resolve(JSON.parse(last, 'utf8'));
           });
         });
       });
     },
-    compare(oldData, newData) {
+    compare(last, cur) {
       function isChanged(o, n) {
         for (let i = 0; i < keys.length; i += 1) {
           if (o[keys[i]] !== n[keys[i]]) return true;
@@ -76,18 +78,18 @@ module.exports = function diff(last) {
       }
 
       const result = { added: [], deleted: [], modified: [] };
-      const oldDataObj = {};
-      oldData.map(o => oldDataObj[o[key]] = o);
-      newData.map(n => {
-        const o = oldDataObj[n[key]];
+      const lastObj = {};
+      last.map(o => lastObj[o[key]] = o);
+      cur.map(n => {
+        const o = lastObj[n[key]];
         if (!o) {
           result.added.push(n);
         } else {
           if (isChanged(o, n)) result.modified.push({ before: o, after: n });
-          delete oldDataObj[n[key]];
+          delete lastObj[n[key]];
         }
       });
-      result.deleted.push(oldDataObj);
+      result.deleted.push(lastObj);
       return result;
     },
     run() {
