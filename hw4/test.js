@@ -1,1 +1,1 @@
-require('./crawl')().run();
+require('./crawl')();

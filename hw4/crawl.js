@@ -19,12 +19,22 @@ let fetch = () => {
     }).on('error', err => reject(err))
   );
 }
+
 let parse = html => {
   return new Promise((resolve, reject) => {
-    const doc = jsdom(html);
-    const names = doc.querySelectorAll('tr th');
-    const values = doc.querySelectorAll('tr td');
-    const rows = [];
+    // const doc = jsdom(html);
+    jsdom.env(html, ["http://code.jquery.com/jquery.js"], (err, window) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(window);
+      }
+    });
+  });
+}
+    // const names = doc.querySelectorAll('tr th');
+    // const values = doc.querySelectorAll('tr td');
+    // const rows = [];
     // for (let i = 0; i < values.length; i += names.length) {
     //   const row = {};
     //   for (let j = 0; j < names.length; j += 1) {
@@ -32,13 +42,10 @@ let parse = html => {
     //   }
     //   rows.push(row);
     // }
-    resolve(rows);
-  });
-}
+    //console.log(rows);
+  //   resolve(html);
+  // });
+
 module.exports = function (){
-  return {
-    run(){
-      fetch().then(parse).then(e=>console.log(e));
-    }
-  }
+  fetch().then(parse).then(result=>console.log(result), err=>console.log(err));
 }
