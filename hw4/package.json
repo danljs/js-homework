@@ -10,7 +10,9 @@
     "test": "./node_modules/.bin/jasmine-node diff.spec.js"
   },
   "dependencies": {
-    "jsdom": "^9.9.1"
+    "iconv-lite": "^0.4.15",
+    "jsdom": "^9.9.1",
+    "openurl": "^1.1.1"
   },
   "devDependencies": {
     "eslint": "^3.6.0",
