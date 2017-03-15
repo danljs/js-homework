@@ -9,6 +9,7 @@ const openurl = require('openurl')
 const config_51={
   charset: 'gb2312',
   url: 'http://www.51.ca/service/servicedisplay.php?s=3e47f0d78f126ede021c67a93e7c7d18&serviceid=122',
+  root: 'http://www.51.ca/service/',
   list: '.itemListBox #ItemList .item',
   data:[
     { name: 'title', selector: '.itemtitle', type: 'text'},
@@ -26,6 +27,7 @@ const config_51={
 const config_yb={
   charset: 'utf-8',
   url: 'http://info.yorkbbs.ca/eat/kitchen',
+  root: 'http://info.yorkbbs.ca/',
   list: '#content_list .mainList-item',
   data:[
     { name: 'title', selector: '.item-cont h2 a', type: 'text'},
@@ -52,13 +54,13 @@ let init = () => {
           if (err1) return console.error(err1);
         });
       }
-      resolve();
+      resolve(config.url);
     });
   });
 }
 
-let fetch = () => {
-  const options = URL.parse(config.url);
+let fetch = url => {
+  const options = URL.parse(url);
   options.headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.65 Safari/537.36'
   };
@@ -100,6 +102,7 @@ let parse = doc =>{
         switch (c.type) {
           case 'link':
             row[c.name] = $(c.selector, items[i]).attr('href');
+            //fetch(config.root + row[c.name]).then(load).then(parse).then(save);
             break;
           case 'image':
             // row[c.name] = $(c.selector, items[i]).text();
