@@ -102,14 +102,15 @@ let parse = doc =>{
         switch (c.type) {
           case 'link':
             row[c.name] = $(c.selector, items[i]).attr('href');
-            //fetch(config.root + row[c.name]).then(load).then(parse).then(save);
+            fetch(config.root + row[c.name]).then(load).then(parse).then(save);
             break;
           case 'image':
-            // row[c.name] = $(c.selector, items[i]).text();
-            // break;
+            row[c.image] = $(c.selector, items[i]).attr('href');
+            downImg(row[c.name]).then(saveImage);
+            break;
           case 'text':
           default:
-            row[c.name] = $(c.selector, items[i]).text();
+            row[c.text] = $(c.selector, items[i]).text();
         }
         
       })

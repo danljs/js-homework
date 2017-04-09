@@ -35,14 +35,13 @@ module.exports = function diff() {
         res.on('data', chunk => html += chunk)
         .on('end', () => {
           const doc = jsdom(html);
-          const names = doc.querySelectorAll('tr th');
-          const values = doc.querySelectorAll('tr td');
+          const names = [].slice.call(doc.querySelectorAll('tr th'));
+          const values = Array.from(doc.querySelectorAll('tr td'));
           const rows = [];
+
           for (let i = 0; i < values.length; i += names.length) {
             const row = {};
-            for (let j = 0; j < names.length; j += 1) {
-              row[names[j].textContent] = values[i + j].textContent;
-            }
+            names.map((n,j) => row[names[j].textContent] = values[i + j].textContent);
             rows.push(row);
           }
           resolve(rows);
