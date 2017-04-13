@@ -9,7 +9,7 @@ const openurl = require('openurl')
 const config_51={
   charset: 'gb2312',
   url: 'http://www.51.ca/service/servicedisplay.php?s=3e47f0d78f126ede021c67a93e7c7d18&serviceid=122',
-  root: 'http://www.51.ca/service/',
+  root: 'http://www.51.ca/service',
   list: '.itemListBox #ItemList .item',
   data:[
     { name: 'title', selector: '.itemtitle', type: 'text'},
@@ -27,7 +27,7 @@ const config_51={
 const config_yb={
   charset: 'utf-8',
   url: 'http://info.yorkbbs.ca/eat/kitchen',
-  root: 'http://info.yorkbbs.ca/',
+  root: 'http://info.yorkbbs.ca',
   list: '#content_list .mainList-item',
   data:[
     { name: 'title', selector: '.item-cont h2 a', type: 'text'},
@@ -77,7 +77,9 @@ let fetch = url => {
         let strJson = iconv.decode(chunkAll, config.charset);
         resolve(strJson);
       });
-    }).on('error', err => reject(err))
+    }).on('error', err => {
+      reject(err)
+    })
   );
 }
 let load = html => {
@@ -102,6 +104,7 @@ let parse = doc =>{
         switch (c.type) {
           case 'link':
             row[c.name] = $(c.selector, items[i]).attr('href');
+            console.log(config.root + row[c.name]);
             fetch(config.root + row[c.name]).then(load).then(parse).then(save);
             break;
           case 'image':
